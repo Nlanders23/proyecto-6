@@ -1,5 +1,4 @@
-const { default: mongoose } = require('mongoose');
-const moongosee = require('mongoose');
+const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
