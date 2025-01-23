@@ -9,6 +9,9 @@ const clothesSchema = mongoose.Schema(
     price: {
         type: Number,
     },
+    description: {
+        type: String
+    },
     item: {
         type: String,
     },
