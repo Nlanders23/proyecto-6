@@ -6,7 +6,7 @@ const userRouter = express.Router();
 
 userRouter.post('/register', createUser);
 userRouter.post('/login', login);
-userRouter.get('/verificar.usuario', authorization, verifyUser);
-userRouter.put('/update', updateUserById);
+userRouter.get('/verifyToken', authorization, verifyUser);
+userRouter.put('/update/:id', updateUserById);
 
 module.exports = userRouter;

@@ -22,7 +22,7 @@ exports.getAllClothes = async (req, res) => {
 exports.getClothById = async (req, res) => {
     const {id} = req.params;
     try {
-        const cloth = await Cloth.finById(id)
+        const cloth = await Cloth.findById(id)
         return res.json({cloth})
     } catch (error) {
         return res.status(500).json({ msg: "There was an error obtaining the cloth" })

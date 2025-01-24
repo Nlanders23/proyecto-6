@@ -20,7 +20,7 @@ const clothesSchema = mongoose.Schema(
     },   
  },
  {
-    tymestamps: true
+    timestamps: true
  }
 );
 

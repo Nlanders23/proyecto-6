@@ -8,7 +8,7 @@ exports.createUser = async (req, res) => {
            const salt = await bcryptjs.genSalt(10);
            const hashedPassword = await bcryptjs.hash(password, salt);
    
-           const createdUser = await Usuario.create({
+           const createdUser = await User.create({
                username,
                email,
                password: hashedPassword,
@@ -17,14 +17,14 @@ exports.createUser = async (req, res) => {
            })
            return res.json(createdUser);
        } catch (error) {
-           return res.status(400).json({ message: error })
+           return res.status(400).json({ message: 'hubo un error al crear el usuario', error })
        }
    }
 
    exports.login = async (req, res) => {
     const { username, password } = req.body;
        try {
-           let foundedUser = await Usuario.findOne({ username });
+           let foundedUser = await User.findOne({ username });
            if (!foundedUser) {
                return res.status(400).json({ message: 'El username no existe' });
            }
@@ -57,7 +57,7 @@ exports.createUser = async (req, res) => {
 
 exports.verifyUser = async (req, res) => {
     try {
-        const user = await Usuario.findById(req.user.id).select('-password')
+        const user = await User.findById(req.user.id).select('-password')
         res.json({ user })
     } catch (error) {
         res.status(500).json({ message: 'Hubo un error verificando el usuario', error })

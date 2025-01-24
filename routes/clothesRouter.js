@@ -5,8 +5,8 @@ const clothRouter = express.Router();
 
 clothRouter.post('/createCloth', createCloth);
 clothRouter.get('/getAllClothes', getAllClothes);
-clothRouter.get('/getCloth', getClothById);
-clothRouter.put('/updateCloth', updateClothById);
-clothRouter.delete('/deleteCloth', deleteClothById);
+clothRouter.get('/getCloth/:id', getClothById);
+clothRouter.put('/updateCloth/:id', updateClothById);
+clothRouter.delete('/deleteCloth/:id', deleteClothById);
 
 module.exports = clothRouter;
