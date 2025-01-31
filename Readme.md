@@ -6,7 +6,7 @@ Para explorar este proyecto deberás:
 2. Instala los modulos, por medio de la terminal de VSC, a través del comando npm install.
 3. Ejecuta el proyecto escribiendo el comando npm run start en la terminal de VSC. Si todo sale bien, deberá aparecer un mensaje que diga: "conectado en el puerto 3000" en la terminal de VSC. 
 
-En este proyecto podrás acceder a la base de datos de Usuario y Prenda de vestir a través de ThunderClient o MongoDB Atlas según la configuración del archivo .env que deberás configurar:
+En este proyecto podrás acceder a la base de datos de Usuario y Prenda de vestir a través de ThunderClient o MongoDB Atlas configurando tu archivo .env
 
 - Para ThunderCLient
    crea un archivo .env en la raíz del proyecto y dentro de él escribe:
@@ -16,7 +16,7 @@ En este proyecto podrás acceder a la base de datos de Usuario y Prenda de vesti
 
 - Para MongoDB Atlas
   crea un archivo .env en la raíz del proyecto y dentro de él escribe:
-     MONGODB_URI=
+     MONGODB_URI=mongodb+srv://admin:admin@bootcampudd.kbspt.mongodb.net/?retryWrites=true&w=majority&appName=Bootcampudd
      PORT=3000
      SECRET=UCAMP
 
