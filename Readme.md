@@ -16,7 +16,7 @@ En este proyecto podrás acceder a la base de datos de Usuario y Prenda de vesti
 
 - Para MongoDB Atlas
   crea un archivo .env en la raíz del proyecto y dentro de él escribe:
-     MONGODB_URI=mongodb+srv://admin:admin@bootcampudd.kbspt.mongodb.net/?retryWrites=true&w=majority&appName=Bootcampudd
+     MONGODB_URI= "aca debes insertar el string de conexión que te otorga Mongodb Atlas"
      PORT=3000
      SECRET=UCAMP
 
