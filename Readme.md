@@ -55,3 +55,6 @@ GET.../api/cloth/getAllClothes       *para traer todas las prendas de la base de
 GET/api/cloth/getCloth/:id           *para traer la información de una prenda por su id
 PUT.../api/cloth/updateCloth/:id     *para actualizar la información de una prenda por su id (name, price, size)
 DELETE.../api/cloth/deleteCloth/:id  *para eliminar una prenda por su id
+
+Despliegue a través de RENDER:
+https://proyecto-6-wpx9.onrender.com
