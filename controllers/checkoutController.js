@@ -1,15 +1,11 @@
-// Importa los modelos de Cart y User
 const Cart = require("../models/carts");
 const User = require("../models/user");
+const Cloth = require("../models/clothes");
 
-// Importa stripe y configura con la clave de stripe en las variables de entorno
+
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 
-/**
- * Encuentra al usuario y su carrito
- * @param {string} userID - ID del usuario
- * @returns {Object} - Objeto con el usuario y su carrito
- */
+
 const findUserAndCart = async (userID) => {
   if (!userID) {
     throw new Error("ID de usuario no proporcionado");
@@ -20,9 +16,7 @@ const findUserAndCart = async (userID) => {
     throw new Error("Usuario no encontrado");
   }
   
-  const foundCart = await Cart.findById(foundUser.cart).populate({
-    path: "products",
-  });
+  const foundCart = await Cart.findById(foundUser.cart);
   if (!foundCart) {
     throw new Error("Carrito no encontrado");
   }
@@ -30,17 +24,66 @@ const findUserAndCart = async (userID) => {
   return { foundUser, foundCart };
 };
 
-/**
- * Función para crear una sesión de checkout en Stripe
- */
+const getOrCreateStripePrice = async (product) => {
+  try {
+   
+    const existingProducts = await stripe.products.list({
+      limit: 100,
+    });
+    
+    let stripeProduct = existingProducts.data.find(p => 
+      p.name === product.name && p.metadata.sizeId === product.sizeId
+    );
+    
+    
+    if (!stripeProduct) {
+      stripeProduct = await stripe.products.create({
+        name: product.name,
+        description: product.description || `${product.name} - ${product.sizeId}`,
+        images: product.img ? [product.img] : undefined,
+        metadata: {
+          sizeId: product.sizeId,
+          category: product.category || 'general'
+        }
+      });
+      
+      console.log(`Producto creado en Stripe: ${stripeProduct.id}`);
+    }
+    
+    
+    const existingPrices = await stripe.prices.list({
+      product: stripeProduct.id,
+      limit: 100,
+    });
+    
+    let stripePrice = existingPrices.data.find(p => 
+      p.unit_amount === Math.round(product.price * 100)
+    );
+    
+   
+    if (!stripePrice) {
+      stripePrice = await stripe.prices.create({
+        product: stripeProduct.id,
+        unit_amount: Math.round(product.price * 100),
+        currency: 'usd', 
+      });
+      
+      console.log(`Precio creado en Stripe: ${stripePrice.id}`);
+    }
+    
+    return stripePrice.id;
+  } catch (error) {
+    console.error(`Error al crear producto/precio en Stripe: ${error.message}`);
+    throw error;
+  }
+};
+
 exports.createCheckoutSession = async (req, res) => {
   try {
     const userID = req.user?.id;
     
-    // Encuentra al usuario y su carrito
     const { foundUser, foundCart } = await findUserAndCart(userID);
-    
-    // Verifica que el carrito tenga productos
+  
     if (!foundCart.products || foundCart.products.length === 0) {
       return res.status(400).json({
         success: false,
@@ -48,27 +91,33 @@ exports.createCheckoutSession = async (req, res) => {
       });
     }
     
-    // Crea line_items para la sesión de Stripe
-    const line_items = foundCart.products.map((e) => {
-      if (!e.priceID) {
-        throw new Error(`Producto sin priceID: ${e._id}`);
-      }
-      return {
-        price: e.priceID,
-        quantity: e.quantity || 1,
-      };
-    });
+    const line_items = [];
     
-    // Crea una sesión de checkout en Stripe
+    for (const product of foundCart.products) {
+      const priceId = await getOrCreateStripePrice(product);
+      
+      line_items.push({
+        price: priceId,
+        quantity: product.quantity || 1,
+      });
+      
+      product.priceID = priceId;
+    }
+    
+    await foundCart.save();
+    
     const session = await stripe.checkout.sessions.create({
       line_items,
       mode: "payment",
       success_url: `${process.env.SUCCESS_BASE_URL}`,
       cancel_url: `${process.env.CANCEL_BASE_URL}`,
       customer_email: foundUser.email,
+      metadata: {
+        userId: userID,
+        cartId: foundCart._id.toString()
+      }
     });
     
-    // Envia la respuesta con formato consistente
     res.status(200).json({
       success: true,
       data: {
@@ -86,12 +135,9 @@ exports.createCheckoutSession = async (req, res) => {
   }
 };
 
-/**
- * Función para procesar webhooks de Stripe y crear órdenes
- */
+
 exports.createOrder = async (req, res) => {
   try {
-    // Obtiene la firma de Stripe de los headers
     const sig = req.headers["stripe-signature"];
     const endpointSecret = process.env.STRIPE_WH_SIGNING_SECRET;
     
@@ -105,7 +151,6 @@ exports.createOrder = async (req, res) => {
     let event;
     
     try {
-      // Construye el evento de Stripe
       event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     } catch (err) {
       console.error("Error al verificar webhook:", err);
@@ -116,10 +161,18 @@ exports.createOrder = async (req, res) => {
       });
     }
     
-    // Dependiendo del tipo de evento
     switch (event.type) {
+      case "checkout.session.completed":
+        const session = event.data.object;
+        
+        const userId = session.metadata.userId;
+        const cartId = session.metadata.cartId;
+        
+        console.log(`Checkout completado: userId=${userId}, cartId=${cartId}`);
+        break;
+        
       case "charge.succeeded":
-        // Si la carga fue exitosa
+       
         const paymentIntent = event.data.object;
         const email = paymentIntent.billing_details.email;
         
@@ -136,7 +189,6 @@ exports.createOrder = async (req, res) => {
         const amount = paymentIntent.amount;
         const date_created = paymentIntent.created;
         
-        // Actualiza el usuario con los datos del recibo
         const updatedUser = await User.findOneAndUpdate(
           { email },
           {
@@ -163,7 +215,6 @@ exports.createOrder = async (req, res) => {
         console.log(`Tipo de evento no manejado: ${event.type}`);
     }
     
-    // Envía una respuesta exitosa
     res.status(200).json({ received: true });
   } catch (error) {
     console.error("Error al procesar webhook:", error);
@@ -175,12 +226,9 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-/**
- * Función para crear un carrito
- */
+
 exports.createCart = async (req, res) => {
   try {
-    // Valida que se proporcionen los datos necesarios
     if (!req.body) {
       return res.status(400).json({
         success: false,
@@ -188,10 +236,8 @@ exports.createCart = async (req, res) => {
       });
     }
     
-    // Crea un carrito con los datos de la solicitud
     const newCart = await Cart.create(req.body);
     
-    // Envía el nuevo carrito en la respuesta
     res.status(201).json({
       success: true,
       message: "Carrito creado exitosamente",
@@ -209,17 +255,13 @@ exports.createCart = async (req, res) => {
   }
 };
 
-/**
- * Función para obtener un carrito
- */
+
 exports.getCart = async (req, res) => {
   try {
     const userID = req.user?.id;
     
-    // Encuentra al usuario y su carrito
     const { foundCart } = await findUserAndCart(userID);
     
-    // Envía el carrito encontrado en la respuesta
     res.status(200).json({
       success: true,
       data: {
@@ -236,17 +278,12 @@ exports.getCart = async (req, res) => {
   }
 };
 
-/**
- * Función para editar un carrito
- */
 exports.editCart = async (req, res) => {
   try {
     const userID = req.user?.id;
     
-    // Encuentra al usuario y su carrito
     const { foundUser } = await findUserAndCart(userID);
     
-    // Toma los nuevos datos de los productos de la solicitud
     const { products } = req.body;
     
     if (!products) {
@@ -256,7 +293,6 @@ exports.editCart = async (req, res) => {
       });
     }
     
-    // Actualiza el carrito con los nuevos datos de los productos
     const updatedCart = await Cart.findByIdAndUpdate(
       foundUser.cart,
       { products },
@@ -267,7 +303,6 @@ exports.editCart = async (req, res) => {
       throw new Error("Error al actualizar el carrito");
     }
     
-    // Envía un mensaje y el carrito actualizado en la respuesta
     res.status(200).json({
       success: true,
       message: "Tu carrito fue actualizado exitosamente",

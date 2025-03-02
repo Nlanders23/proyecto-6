@@ -28,6 +28,9 @@ const cartSchema = mongoose.Schema({
       category: {
         type: String,
       },
+      priceID: {
+        type: String,
+      }
     },
   ],
 });

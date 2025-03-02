@@ -1,6 +1,46 @@
 const Cloth = require('../models/clothes');
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 exports.createCloth = async (req, res) => {
+    const product = await stripe.products.create({
+        name,
+        description,
+        images: [...img],
+        metadata: {
+          productDescription: description,
+          slug,
+        },
+      });
+  
+      // B. PRECIO
+      // CREAR LOS PRECIOS PARA EL PRODUCTO EN STRIPE
+  
+      const stripePrices = await Promise.all(
+        prices.map(async (e) => {
+          return await stripe.prices.create({
+            unit_amount: e.price,
+            currency: currency,
+            product: product.id,
+            nickname: e.size,
+            metadata: {
+              size: e.size,
+              priceDescription: e.description,
+            },
+          });
+        })
+      );
+  
+      // 2. MODIFICACIÓN EN BASE DE DATOS
+  
+      const pizzaPrices = stripePrices.map((e) => {
+        return {
+          id: e.id,
+          size: e.metadata.size,
+          priceDescription: e.metadata.priceDescription,
+          price: e.unit_amount,
+        };
+      });
+  
     const { name, price, currency, description, img, sizes, category  } = req.body;
     try {
         const newCloth = await Cloth.create({ name, price, currency, description, img, sizes, category })
