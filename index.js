@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken')
 
 const userRouter = require('./routes/userRouter')
 const clothRouter = require('./routes/clothesRouter')
+const cartsRouter = require('./routes/cartsRouter');
 
 const auth = require('./middlewares/authorization')
 
@@ -20,6 +21,7 @@ app.use(express.json());
 
 app.use('/api/user', userRouter);
 app.use('/api/cloth', clothRouter);
+app.use('/api/carts', cartsRouter);
 
 app.listen(3000, () => {
     console.log('El servidor esta conectado en el puerto 3000')
