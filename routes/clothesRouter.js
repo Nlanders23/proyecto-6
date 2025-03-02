@@ -3,10 +3,10 @@ const { getAllClothes, createCloth, getClothById, updateClothById, deleteClothBy
 
 const clothRouter = express.Router();
 
-clothRouter.post('/createCloth', createCloth);
-clothRouter.get('/getAllClothes', getAllClothes);
-clothRouter.get('/getCloth/:id', getClothById);
-clothRouter.put('/updateCloth/:id', updateClothById);
-clothRouter.delete('/deleteCloth/:id', deleteClothById);
+clothRouter.post('/create-cloth', createCloth);
+clothRouter.get('/get-all-clothes', getAllClothes);
+clothRouter.get('/get-cloth/:id', getClothById);
+clothRouter.put('/update-cloth/:id', updateClothById);
+clothRouter.delete('/delete-cloth/:id', deleteClothById);
 
 module.exports = clothRouter;

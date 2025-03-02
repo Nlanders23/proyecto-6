@@ -15,7 +15,18 @@ exports.createUser = async (req, res) => {
                genre,
                age
            })
-           return res.json(createdUser);
+           const payload = { user: {  id: createdUser.id } };
+           jwt.sign(
+            payload,
+            process.env.SECRET,
+            {
+                expiresIn: 600000
+            },
+            (error, token) => {
+                if (error) throw error;
+                res.json({ token });
+            }
+        )
        } catch (error) {
            return res.status(400).json({ message: 'hubo un error al crear el usuario', error })
        }
@@ -39,7 +50,7 @@ exports.createUser = async (req, res) => {
                payload,
                process.env.SECRET,
                {
-                   expiresIn: 120
+                   expiresIn: 600000
                },
                (error, token) => {
                    if (error) throw error;

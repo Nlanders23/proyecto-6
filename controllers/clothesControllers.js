@@ -1,9 +1,9 @@
 const Cloth = require('../models/clothes');
 
 exports.createCloth = async (req, res) => {
-    const { name, price, description, item, size  } = req.body;
+    const { name, price, currency, description, img, sizes, category  } = req.body;
     try {
-        const newCloth = await Cloth.create({ name, price, description, item, size })
+        const newCloth = await Cloth.create({ name, price, currency, description, img, sizes, category })
         res.json({ newCloth })
     } catch (error) {
         res.status(500).json({ msg: 'There was an error creating a new cloth' })
@@ -12,7 +12,7 @@ exports.createCloth = async (req, res) => {
 
 exports.getAllClothes = async (req, res) => {
     try {
-        const clothes = await Cloth.find({})
+        const clothes = await Cloth.find({}).populate('sizes')
         return res.json({ clothes })
     } catch (error) {
         return res.status(500).json({ msg: "There was an error obtaining the data" })

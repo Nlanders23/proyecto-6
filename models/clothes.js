@@ -9,15 +9,26 @@ const clothesSchema = mongoose.Schema(
     price: {
         type: Number,
     },
+    currency: {
+        type: String
+    },
     description: {
         type: String
     },
-    item: {
+    img: {
+        type: Array,
+        required: true
+    },  
+     sizes: [
+         {
+             type: mongoose.Schema.Types.ObjectId,
+             ref: 'SizeCloth',
+             required: true
+         } 
+     ],
+     category: {
         type: String,
-    },
-    size: {
-        type: String,
-    },   
+     }
  },
  {
     timestamps: true
