@@ -16,7 +16,7 @@ En este proyecto podrás acceder a la base de datos de Usuario y Prenda de vesti
 
 - Para MongoDB Atlas
   crea un archivo .env en la raíz del proyecto y dentro de él escribe:
-     MONGODB_URI=mongodb+srv://admin:admin@bootcampudd.kbspt.mongodb.net/?retryWrites=true&w=majority&appName=Bootcampudd
+     MONGODB_URI= "aca debes insertar el string de conexión que te otorga Mongodb Atlas"
      PORT=3000
      SECRET=UCAMP
 
@@ -55,3 +55,6 @@ GET.../api/cloth/getAllClothes       *para traer todas las prendas de la base de
 GET/api/cloth/getCloth/:id           *para traer la información de una prenda por su id
 PUT.../api/cloth/updateCloth/:id     *para actualizar la información de una prenda por su id (name, price, size)
 DELETE.../api/cloth/deleteCloth/:id  *para eliminar una prenda por su id
+
+Despliegue a través de RENDER:
+https://proyecto-6-wpx9.onrender.com
