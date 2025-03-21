@@ -285,7 +285,7 @@ exports.createOrderFromItems = async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       line_items,
       mode: "payment",
-      success_url: `${process.env.SUCCESS_BASE_URL || "http://localhost:5173/success"}`,
+      success_url: `${process.env.SUCCESS_BASE_URL || "http://localhost:5173/compra-exitosa"}`,
       cancel_url: `${process.env.CANCEL_BASE_URL || "http://localhost:5173/carrito"}`,
       metadata: {
         cartId: newCart._id.toString(),
