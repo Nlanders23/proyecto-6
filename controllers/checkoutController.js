@@ -286,7 +286,7 @@ exports.createOrderFromItems = async (req, res) => {
       line_items,
       mode: "payment",
       success_url: `${process.env.SUCCESS_BASE_URL || "http://localhost:5173/compra-exitosa"}`,
-      cancel_url: `${process.env.CANCEL_BASE_URL || "http://localhost:5173/carrito"}`,
+      cancel_url: `${process.env.CANCEL_BASE_URL || "http://localhost:5173/compra-cancelada"}`,
       metadata: {
         cartId: newCart._id.toString(),
         userId: userID || "anonymous"

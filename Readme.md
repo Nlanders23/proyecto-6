@@ -45,7 +45,32 @@ PUT.../api/user/update/:id     *para actualizar información del usuario (userna
     "price": Number,
     "description": String,
     "item": String,
-    "size": String, 
+    "size": [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SizeCloth',
+            required: true
+        } 
+    ],
+    "category": String,
+    stripe: {
+        productId: {
+            type: String
+        },
+        prices: [
+            {
+                id: {
+                    type: String
+                },
+                sizeId: {
+                    type: String
+                },
+                price: {
+                    type: Number
+                }
+            }
+        ]
+    }
 }
 
 -Rutas de la Prenda de vestir:
@@ -58,3 +83,4 @@ DELETE.../api/cloth/deleteCloth/:id  *para eliminar una prenda por su id
 
 Despliegue a través de RENDER:
 https://proyecto-6-wpx9.onrender.com
+
